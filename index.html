@@ -1,0 +1,638 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);display:flex;justify-content:center;padding:20px 0;min-height:600px}
+.phone{width:375px;height:760px;background:var(--color-background-primary);border-radius:40px;border:6px solid var(--color-text-primary);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status-bar{height:36px;background:var(--color-background-primary);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0}
+.status-time{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.status-icons{display:flex;align-items:center;gap:5px}
+.screen-wrap{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;top:0;left:0;right:0;bottom:0;display:none;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+.bottom-nav{height:62px;background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:6px}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 18px;border-radius:12px;transition:background 0.15s}
+.nav-tab.active .ti{color:#185FA5}
+.nav-tab.active .tl{color:#185FA5;font-weight:500}
+.ti{color:var(--color-text-secondary)}
+.tl{font-size:10px;color:var(--color-text-secondary)}
+
+/* HOME */
+.notif-banner{background:#E6F1FB;border-bottom:0.5px solid #B5D4F4;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer}
+.home-header{background:var(--color-background-primary);padding:14px 16px 12px;flex-shrink:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.role-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;background:#E6F1FB;color:#185FA5;margin-top:4px}
+.summary-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 14px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.sum-card{text-align:center;padding:8px 4px;border-radius:10px;cursor:pointer;transition:background 0.15s}
+.sum-card:active{background:var(--color-background-secondary)}
+.sum-num{font-size:22px;font-weight:500}
+.sum-label{font-size:10px;margin-top:2px}
+.sum-card.danger .sum-num{color:#A32D2D}.sum-card.danger .sum-label{color:#791F1F}
+.sum-card.warning .sum-num{color:#854F0B}.sum-card.warning .sum-label{color:#633806}
+.sum-card.info .sum-num{color:#185FA5}.sum-card.info .sum-label{color:#0C447C}
+.filter-row{padding:10px 14px;background:var(--color-background-primary);display:flex;gap:6px;overflow-x:auto;flex-shrink:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.filter-row::-webkit-scrollbar{display:none}
+.fchip{padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);white-space:nowrap;flex-shrink:0}
+.fchip.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.store-row{padding:8px 14px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.store-sel{width:100%;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:10px;font-size:12px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.feed{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.feed::-webkit-scrollbar{display:none}
+.section-label{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.07em;padding:0 2px;margin-top:2px;flex-shrink:0}
+
+/* ACTION CARD — fixed full layout */
+.action-card{background:var(--color-background-primary);border-radius:14px;border:0.5px solid var(--color-border-tertiary);overflow:hidden;cursor:pointer;transition:transform 0.15s;flex-shrink:0}
+.action-card:active{transform:scale(0.985)}
+.card-inner{display:flex}
+.card-stripe{width:5px;flex-shrink:0}
+.card-content{flex:1;padding:13px 13px 13px 11px;min-width:0}
+.card-row1{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:5px;gap:8px}
+.card-name{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.card-skustore{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.crit-badge{font-size:11px;font-weight:500;padding:3px 8px;border-radius:8px;flex-shrink:0;white-space:nowrap}
+.card-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px;background:var(--color-background-secondary);border-radius:8px;padding:7px 8px}
+.metric-item{text-align:center}
+.metric-key{font-size:9px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px}
+.metric-val{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.card-row3{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rev-tag{font-size:11px;font-weight:500;padding:5px 10px;border-radius:8px;white-space:nowrap}
+.cta-btn{font-size:12px;font-weight:500;padding:8px 14px;border-radius:10px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.cta-btn:active{opacity:0.8}
+.cta-reorder{background:#FCEBEB;color:#A32D2D}
+.cta-restock{background:#FAEEDA;color:#854F0B}
+.cta-redis{background:#E6F1FB;color:#185FA5}
+.cta-mark{background:#E1F5EE;color:#0F6E56}
+
+/* DETAIL */
+.detail-header{background:var(--color-background-primary);padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.back-btn{width:34px;height:34px;border-radius:10px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;border:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.detail-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.detail-body::-webkit-scrollbar{display:none}
+.type-bar{background:var(--color-background-primary);border-radius:12px;padding:12px 14px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.det-metric{background:var(--color-background-primary);border-radius:12px;padding:12px;border:0.5px solid var(--color-border-tertiary)}
+.dm-label{font-size:10px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.dm-val{font-size:19px;font-weight:500}
+.dm-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.rev-card{border-radius:12px;padding:13px 14px;border:0.5px solid transparent}
+.rev-card.danger{background:#FCEBEB;border-color:#F09595}
+.rev-card.warning{background:#FAEEDA;border-color:#FAC775}
+.rev-card.info{background:#E6F1FB;border-color:#B5D4F4}
+.action-area{background:var(--color-background-primary);border-radius:12px;padding:13px 14px;border:0.5px solid var(--color-border-tertiary)}
+.da-label{font-size:10px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.da-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.da-row:last-child{border-bottom:none}
+.da-key{color:var(--color-text-secondary)}
+.da-val{font-weight:500;color:var(--color-text-primary)}
+.m-inp{width:66px;padding:5px 8px;border:0.5px solid var(--color-border-secondary);border-radius:8px;font-size:13px;text-align:center;background:var(--color-background-primary);color:var(--color-text-primary)}
+.confirm-btn{width:100%;padding:14px;border-radius:14px;border:none;font-size:14px;font-weight:500;cursor:pointer}
+.confirm-btn:active{opacity:0.85}
+.cbr{background:#FCEBEB;color:#A32D2D}
+.cbw{background:#FAEEDA;color:#854F0B}
+.cbi{background:#E6F1FB;color:#185FA5}
+.cbg{background:#E1F5EE;color:#0F6E56}
+.success-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px 24px}
+.success-icon{width:64px;height:64px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+
+/* SEARCH */
+.search-top{padding:12px 14px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.search-inp{width:100%;padding:9px 14px;border:0.5px solid var(--color-border-secondary);border-radius:12px;font-size:13px;background:var(--color-background-secondary);color:var(--color-text-primary)}
+.search-inp:focus{outline:none;border-color:#185FA5;background:var(--color-background-primary)}
+.search-feed{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.search-feed::-webkit-scrollbar{display:none}
+.search-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:12px 14px;cursor:pointer;transition:background 0.15s}
+.search-card:active{background:var(--color-background-secondary)}
+.search-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.search-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.search-meta{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.s-badge{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:500;white-space:nowrap;flex-shrink:0}
+
+/* SETTINGS */
+.settings-top{padding:14px 16px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.settings-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.settings-scroll::-webkit-scrollbar{display:none}
+.profile-card{background:var(--color-background-primary);border-radius:14px;border:0.5px solid var(--color-border-tertiary);padding:16px;display:flex;align-items:center;gap:14px}
+.avatar{width:48px;height:48px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#185FA5;flex-shrink:0}
+.sec-head{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.07em;padding:0 4px}
+.settings-section{background:var(--color-background-primary);border-radius:14px;border:0.5px solid var(--color-border-tertiary);overflow:hidden}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer}
+.settings-row:last-child{border-bottom:none}
+.settings-row:active{background:var(--color-background-secondary)}
+.sr-label{font-size:13px;color:var(--color-text-primary)}
+.sr-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.toggle{width:42px;height:24px;border-radius:12px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#185FA5}.toggle.off{background:var(--color-border-secondary)}
+.toggle-knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle.on .toggle-knob{left:20px}.toggle.off .toggle-knob{left:2px}
+.badge-risk{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;margin-top:2px;display:inline-block}
+</style>
+
+<div style="display:flex;justify-content:center">
+<div class="phone">
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="var(--color-text-primary)"><rect x="0" y="4" width="3" height="7" rx="0.5"/><rect x="4" y="2.5" width="3" height="8.5" rx="0.5"/><rect x="8" y="1" width="3" height="10" rx="0.5"/><rect x="12" y="0" width="3" height="11" rx="0.5"/></svg>
+      <svg width="14" height="11" viewBox="0 0 14 11" fill="none" stroke="var(--color-text-primary)" stroke-width="1.2"><path d="M7 3a6 6 0 016 6"/><path d="M7 5.5a3.5 3.5 0 013.5 3.5"/><circle cx="7" cy="9" r="1" fill="var(--color-text-primary)" stroke="none"/></svg>
+      <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="0.5" y="0.5" width="20" height="10" rx="2" stroke="var(--color-text-primary)"/><rect x="21" y="3" width="2.5" height="5" rx="1" fill="var(--color-text-secondary)"/><rect x="2" y="2" width="14" height="7" rx="1" fill="#639922"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-wrap">
+
+    <!-- HOME -->
+    <div class="screen active" id="ms-home">
+      <div id="notif-banner" style="background:#E6F1FB;border-bottom:0.5px solid #B5D4F4;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer" onclick="this.style.display='none'">
+        <div>
+          <div style="font-size:12px;color:#185FA5;font-weight:500">3 new critical items since last login</div>
+          <div style="font-size:10px;color:#378ADD;margin-top:1px">SKU-1042, SKU-2218, SKU-4402 need action</div>
+        </div>
+        <div style="font-size:18px;color:#378ADD;padding:0 4px">×</div>
+      </div>
+      <div class="home-header">
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Good morning, Priya 👋</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Thursday, 8 May 2026</div>
+        <div class="role-pill">Area Manager · North Zone</div>
+      </div>
+      <div class="summary-strip">
+        <div class="sum-card danger" onclick="filterFeed('oos',null)"><div class="sum-num">18</div><div class="sum-label">Out of Stock</div></div>
+        <div class="sum-card warning" onclick="filterFeed('low',null)"><div class="sum-num">15</div><div class="sum-label">Low Stock</div></div>
+        <div class="sum-card info" onclick="filterFeed('over',null)"><div class="sum-num">14</div><div class="sum-label">Overstock</div></div>
+      </div>
+      <div class="filter-row" id="feed-chips">
+        <div class="fchip active" onclick="filterFeed('all',this)">All (47)</div>
+        <div class="fchip" onclick="filterFeed('oos',this)">Out of Stock</div>
+        <div class="fchip" onclick="filterFeed('low',this)">Low Stock</div>
+        <div class="fchip" onclick="filterFeed('redis',this)">Redistribute</div>
+        <div class="fchip" onclick="filterFeed('markdown',this)">Markdown</div>
+      </div>
+      <div class="store-row">
+        <select class="store-sel" onchange="showToast('Store filter applied')">
+          <option>All Stores (28)</option><option>DL-Connaught</option><option>MH-Andheri</option>
+          <option>MH-Bandra</option><option>KA-Koramangala</option><option>TN-T-Nagar</option><option>TN-Adyar</option>
+        </select>
+      </div>
+      <div class="feed" id="action-feed">
+        <div class="section-label">Critical · Act now</div>
+
+        <div class="action-card" data-type="oos" onclick="openDetail(0)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#E24B4A"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Men's Casual Shirt</div>
+                  <div class="card-skustore">SKU-1042 · DL-Connaught, Delhi</div>
+                </div>
+                <div class="crit-badge" style="background:#FCEBEB;color:#A32D2D">9.4</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val" style="color:#A32D2D">0</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#A32D2D">0d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">4d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val">—</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#FCEBEB;color:#A32D2D">−₹1.44L at risk</div>
+                <button class="cta-btn cta-reorder" onclick="event.stopPropagation();openDetail(0)">Reorder now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card" data-type="oos" onclick="openDetail(1)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#E24B4A"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Women's Kurti (L)</div>
+                  <div class="card-skustore">SKU-2218 · MH-Andheri, Mumbai</div>
+                </div>
+                <div class="crit-badge" style="background:#FCEBEB;color:#A32D2D">8.9</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val" style="color:#A32D2D">0</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#A32D2D">0d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">5d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val">—</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#FCEBEB;color:#A32D2D">−₹96K at risk</div>
+                <button class="cta-btn cta-reorder" onclick="event.stopPropagation();openDetail(1)">Reorder now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card" data-type="low" onclick="openDetail(2)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#BA7517"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Leggings (S/M)</div>
+                  <div class="card-skustore">SKU-4402 · MH-Bandra, Mumbai</div>
+                </div>
+                <div class="crit-badge" style="background:#FAEEDA;color:#854F0B">8.3</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val" style="color:#854F0B">8</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#854F0B">3d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">3d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val">61%</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#FAEEDA;color:#854F0B">−₹38K risk</div>
+                <button class="cta-btn cta-restock" onclick="event.stopPropagation();openDetail(2)">Restock soon</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:4px">Overstock · Act to recover capital</div>
+
+        <div class="action-card" data-type="redis" onclick="openDetail(3)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#185FA5"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Kids Jeans (Age 6-8)</div>
+                  <div class="card-skustore">SKU-0831 · KA-Koramangala</div>
+                </div>
+                <div class="crit-badge" style="background:#FAEEDA;color:#854F0B">8.1</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val">342</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#854F0B">98d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">3d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val" style="color:#854F0B">18%</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#E6F1FB;color:#185FA5">₹2.1L locked</div>
+                <button class="cta-btn cta-redis" onclick="event.stopPropagation();openDetail(3)">Redistribute</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card" data-type="markdown" onclick="openDetail(4)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#1D9E75"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Formal Trousers (32)</div>
+                  <div class="card-skustore">SKU-3301 · TN-T-Nagar, Chennai</div>
+                </div>
+                <div class="crit-badge" style="background:#FAEEDA;color:#854F0B">7.6</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val">215</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#854F0B">112d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">6d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val" style="color:#854F0B">22%</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#E1F5EE;color:#0F6E56">₹1.5L locked</div>
+                <button class="cta-btn cta-mark" onclick="event.stopPropagation();openDetail(4)">Markdown</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card" data-type="markdown" onclick="openDetail(5)">
+          <div class="card-inner">
+            <div class="card-stripe" style="background:#1D9E75"></div>
+            <div class="card-content">
+              <div class="card-row1">
+                <div>
+                  <div class="card-name">Saree (Silk, Red)</div>
+                  <div class="card-skustore">SKU-5510 · TN-Adyar, Chennai</div>
+                </div>
+                <div class="crit-badge" style="background:#FAEEDA;color:#854F0B">6.9</div>
+              </div>
+              <div class="card-metrics">
+                <div class="metric-item"><div class="metric-key">Qty</div><div class="metric-val">187</div></div>
+                <div class="metric-item"><div class="metric-key">DSI</div><div class="metric-val" style="color:#854F0B">88d</div></div>
+                <div class="metric-item"><div class="metric-key">TAT</div><div class="metric-val">8d</div></div>
+                <div class="metric-item"><div class="metric-key">STR</div><div class="metric-val" style="color:#854F0B">24%</div></div>
+              </div>
+              <div class="card-row3">
+                <div class="rev-tag" style="background:#E1F5EE;color:#0F6E56">₹3.8L locked</div>
+                <button class="cta-btn cta-mark" onclick="event.stopPropagation();openDetail(5)">Markdown</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen" id="ms-detail">
+      <div class="detail-header">
+        <div class="back-btn" onclick="goHome()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-text-primary)" stroke-width="1.8"><path d="M10 3L5 8l5 5"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)" id="d-title">Detail</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px" id="d-sub">—</div>
+        </div>
+      </div>
+      <div class="detail-body" id="d-body"></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="screen" id="ms-search">
+      <div class="search-top">
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">Search</div>
+        <input class="search-inp" id="s-inp" placeholder="SKU, store, or category..." oninput="doSearch(this.value)">
+      </div>
+      <div class="search-feed" id="search-feed"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="ms-settings">
+      <div class="settings-top">
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Settings</div>
+      </div>
+      <div class="settings-scroll">
+        <div class="profile-card">
+          <div class="avatar">PS</div>
+          <div>
+            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Priya Sharma</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Area Manager</div>
+            <div style="font-size:11px;color:#185FA5;margin-top:3px;font-weight:500">North Zone · 8 stores</div>
+          </div>
+        </div>
+
+        <div class="sec-head">Notifications</div>
+        <div class="settings-section">
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">Out of stock alerts</div><div class="sr-sub">Notify immediately</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">Low stock warnings</div><div class="sr-sub">DSI ≤ 14 days</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">Overstock alerts</div><div class="sr-sub">DSI ≥ 60 days</div></div>
+            <div class="toggle off"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">Daily summary</div><div class="sr-sub">Every morning at 8 AM</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">Action confirmations</div><div class="sr-sub">After reorder / markdown</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+
+        <div class="sec-head">Store visibility</div>
+        <div class="settings-section">
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">DL-Connaught</div><div class="badge-risk" style="background:#FCEBEB;color:#A32D2D">High Risk</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">MH-Andheri</div><div class="badge-risk" style="background:#FCEBEB;color:#A32D2D">High Risk</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">TN-T-Nagar</div><div class="badge-risk" style="background:#FCEBEB;color:#A32D2D">High Risk</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">KA-Koramangala</div><div class="badge-risk" style="background:#FAEEDA;color:#854F0B">Moderate</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">DL-Lajpat Nagar</div><div class="badge-risk" style="background:#FAEEDA;color:#854F0B">Moderate</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">MH-Bandra</div><div class="badge-risk" style="background:#EAF3DE;color:#3B6D11">Healthy</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">KA-Indiranagar</div><div class="badge-risk" style="background:#EAF3DE;color:#3B6D11">Healthy</div></div>
+            <div class="toggle off"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row" onclick="togSet(this)">
+            <div><div class="sr-label">TN-Adyar</div><div class="badge-risk" style="background:#EAF3DE;color:#3B6D11">Healthy</div></div>
+            <div class="toggle on"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+
+        <div class="sec-head">Display</div>
+        <div class="settings-section">
+          <div class="settings-row">
+            <div><div class="sr-label">Sort feed by</div></div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--color-text-secondary)">Criticality<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--color-text-tertiary)" stroke-width="1.5"><path d="M4 5l2 2 2-2"/></svg></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="sr-label">Default store filter</div></div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--color-text-secondary)">All stores<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--color-text-tertiary)" stroke-width="1.5"><path d="M4 5l2 2 2-2"/></svg></div>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-tab active" id="tab-home" onclick="switchTab('home',this)">
+      <svg class="ti" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="12" y="2" width="8" height="8" rx="1.5"/><rect x="2" y="12" width="8" height="8" rx="1.5"/><rect x="12" y="12" width="8" height="8" rx="1.5"/></svg>
+      <span class="tl">Home</span>
+    </div>
+    <div class="nav-tab" id="tab-search" onclick="switchTab('search',this)">
+      <svg class="ti" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="6"/><line x1="14.5" y1="14.5" x2="19" y2="19"/></svg>
+      <span class="tl">Search</span>
+    </div>
+    <div class="nav-tab" id="tab-settings" onclick="switchTab('settings',this)">
+      <svg class="ti" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="3"/><path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4"/></svg>
+      <span class="tl">Settings</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="mtoast" style="position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:#185FA5;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;white-space:nowrap"></div>
+
+<script>
+var ITEMS=[
+  {name:"Men's Casual Shirt",sku:"SKU-1042",store:"DL-Connaught",city:"Delhi",type:"oos",crit:9.4,qty:0,dsi:"0d",tat:"4d",str:"—",rev:"−₹1.44L",revCls:"danger",revColor:"#A32D2D",action:"Reorder now",cbCls:"cbr",ctaCls:"cta-reorder",recQty:120,price:800,disc:20,arrival:"4–5 days",recStr:"Reorder 120 units based on 30-day avg velocity. Stock will arrive in 4–5 days."},
+  {name:"Women's Kurti (L)",sku:"SKU-2218",store:"MH-Andheri",city:"Mumbai",type:"oos",crit:8.9,qty:0,dsi:"0d",tat:"5d",str:"—",rev:"−₹96K",revCls:"danger",revColor:"#A32D2D",action:"Reorder now",cbCls:"cbr",ctaCls:"cta-reorder",recQty:80,price:1200,disc:20,arrival:"5–6 days",recStr:"Out of stock. Reorder 80 units to cover 30-day demand at this store."},
+  {name:"Leggings (S/M)",sku:"SKU-4402",store:"MH-Bandra",city:"Mumbai",type:"low",crit:8.3,qty:8,dsi:"3d",tat:"3d",str:"61%",rev:"−₹38K",revCls:"warning",revColor:"#854F0B",action:"Restock soon",cbCls:"cbw",ctaCls:"cta-restock",recQty:60,price:650,disc:0,arrival:"3–4 days",recStr:"Only 3 days of stock left. TAT = 3 days — reorder immediately to avoid stockout."},
+  {name:"Kids Jeans (Age 6-8)",sku:"SKU-0831",store:"KA-Koramangala",city:"Bengaluru",type:"redis",crit:8.1,qty:342,dsi:"98d",tat:"3d",str:"18%",rev:"₹2.1L locked",revCls:"info",revColor:"#185FA5",action:"Redistribute",cbCls:"cbi",ctaCls:"cta-redis",recQty:80,price:0,disc:0,arrival:"—",recStr:"Transfer 80 units to DL-Connaught (low stock). Est. holding cost saved: ₹48,000."},
+  {name:"Formal Trousers (32)",sku:"SKU-3301",store:"TN-T-Nagar",city:"Chennai",type:"markdown",crit:7.6,qty:215,dsi:"112d",tat:"6d",str:"22%",rev:"₹1.5L locked",revCls:"warning",revColor:"#854F0B",action:"Markdown",cbCls:"cbg",ctaCls:"cta-mark",recQty:215,price:1799,disc:20,arrival:"—",recStr:"Slow-mover for 12+ weeks. Apply 20% markdown to clear in ~18 days."},
+  {name:"Saree (Silk, Red)",sku:"SKU-5510",store:"TN-Adyar",city:"Chennai",type:"markdown",crit:6.9,qty:187,dsi:"88d",tat:"8d",str:"24%",rev:"₹3.8L locked",revCls:"warning",revColor:"#854F0B",action:"Markdown",cbCls:"cbg",ctaCls:"cta-mark",recQty:187,price:2499,disc:20,arrival:"—",recStr:"Low velocity for 10+ weeks. 20% markdown recommended for clearance in ~22 days."},
+  {name:"Polo T-Shirt (M)",sku:"SKU-6621",store:"All stores",city:"",type:"hh",crit:null,qty:244,dsi:"29d",tat:"4d",str:"72%",rev:"₹14.2L MTD",revCls:"info",revColor:"#3B6D11",action:null,cbCls:"",ctaCls:"",recQty:0,price:799,disc:0,arrival:"—",recStr:"Performing well. No action required."},
+  {name:"Cotton Kurta (S)",sku:"SKU-7712",store:"KA-Indiranagar",city:"Bengaluru",type:"oos",crit:6.2,qty:0,dsi:"0d",tat:"4d",str:"—",rev:"−₹54K",revCls:"danger",revColor:"#A32D2D",action:"Reorder now",cbCls:"cbr",ctaCls:"cta-reorder",recQty:50,price:1080,disc:0,arrival:"4–5 days",recStr:"Out of stock at this store. Reorder 50 units."},
+  {name:"Denim Shorts (30)",sku:"SKU-8834",store:"All stores",city:"",type:"hh",crit:null,qty:182,dsi:"38d",tat:"5d",str:"64%",rev:"₹9.4L MTD",revCls:"info",revColor:"#3B6D11",action:null,cbCls:"",ctaCls:"",recQty:0,price:1099,disc:0,arrival:"—",recStr:"Performing well. No action required."},
+  {name:"Women's Blazer (S)",sku:"SKU-9901",store:"DL-Lajpat Nagar",city:"Delhi",type:"low",crit:5.8,qty:14,dsi:"18d",tat:"7d",str:"38%",rev:"−₹22K",revCls:"warning",revColor:"#854F0B",action:"Restock soon",cbCls:"cbw",ctaCls:"cta-restock",recQty:40,price:2299,disc:0,arrival:"7–8 days",recStr:"Stock running low. Reorder 40 units to maintain cover."}
+];
+
+var typeLabelMap={oos:'Out of Stock',low:'Low Stock',redis:'Overstock · Redistribute',markdown:'Overstock · Markdown',hh:'Optimum'};
+var typeBgMap={oos:'#FCEBEB',low:'#FAEEDA',redis:'#E6F1FB',markdown:'#E1F5EE',hh:'#EAF3DE'};
+var typeColorMap={oos:'#A32D2D',low:'#854F0B',redis:'#185FA5',markdown:'#0F6E56',hh:'#3B6D11'};
+var currentItem=null;
+
+function switchTab(name,el){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('ms-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(name==='search'){
+    document.getElementById('s-inp').value='';
+    renderSearch(ITEMS);
+    setTimeout(function(){document.getElementById('s-inp').focus();},100);
+  }
+}
+
+function filterFeed(type,el){
+  if(el){
+    document.querySelectorAll('#feed-chips .fchip').forEach(function(c){c.classList.remove('active')});
+    el.classList.add('active');
+  }
+  document.querySelectorAll('#action-feed .action-card').forEach(function(c){
+    var t=c.getAttribute('data-type');
+    var show=type==='all'||t===type||(type==='over'&&(t==='redis'||t==='markdown'));
+    c.style.display=show?'':'none';
+  });
+}
+
+function renderSearch(items){
+  var feed=document.getElementById('search-feed');
+  if(!items.length){
+    feed.innerHTML='<div style="padding:30px 0;text-align:center;color:var(--color-text-secondary);font-size:12px">No results found</div>';
+    return;
+  }
+  var html='';
+  items.forEach(function(d,i){
+    var clickable=d.type!=='hh';
+    var realIdx=ITEMS.indexOf(d);
+    html+='<div class="search-card" '+(clickable?'onclick="openDetail('+realIdx+')"':'')+'>'+
+      '<div class="search-card-top">'+
+      '<div><div class="search-name">'+d.name+'</div>'+
+      '<div class="search-meta">'+d.sku+' · '+d.store+(d.city?' · '+d.city:'')+'</div></div>'+
+      '<span class="s-badge" style="background:'+typeBgMap[d.type]+';color:'+typeColorMap[d.type]+'">'+typeLabelMap[d.type]+'</span>'+
+      '</div>'+
+      (d.crit?'<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">Criticality: <b style="color:'+typeColorMap[d.type]+'">'+d.crit+'</b> · DSI: <b>'+d.dsi+'</b> · STR: <b>'+d.str+'</b></div>':
+      '<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">DSI: <b>'+d.dsi+'</b> · STR: <b>'+d.str+'</b> · Qty: <b>'+d.qty+'</b></div>')+
+      '</div>';
+  });
+  feed.innerHTML=html;
+}
+
+function doSearch(q){
+  if(!q){renderSearch(ITEMS);return;}
+  var r=ITEMS.filter(function(d){return(d.name+d.sku+d.store+d.city+(d.type||'')).toLowerCase().includes(q.toLowerCase());});
+  renderSearch(r);
+}
+
+function openDetail(idx){
+  currentItem=ITEMS[idx];
+  var it=currentItem;
+  document.getElementById('d-title').textContent=it.name;
+  document.getElementById('d-sub').textContent=it.sku+' · '+it.store+(it.city?', '+it.city:'');
+  var typeBg=typeBgMap[it.type]||'#F1EFE8';
+  var typeColor=typeColorMap[it.type]||'#5F5E5A';
+  var typeLabel=typeLabelMap[it.type]||'—';
+  var qtyColor=it.qty===0?'#A32D2D':it.qty<20?'#854F0B':'var(--color-text-primary)';
+  var dsiColor=it.dsi==='0d'?'#A32D2D':parseInt(it.dsi)<15?'#854F0B':parseInt(it.dsi)>60?'#854F0B':'var(--color-text-primary)';
+
+  var actionFields='';
+  if(it.type==='oos'||it.type==='low'){
+    actionFields='<div class="da-row"><span class="da-key">Recommended qty</span><span class="da-val"><input id="det-qty" class="m-inp" type="number" value="'+it.recQty+'" min="1" oninput="updCalc()"></span></div>'+
+      '<div class="da-row"><span class="da-key">Unit price</span><span class="da-val">₹'+it.price.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="da-row"><span class="da-key">Est. order value</span><span class="da-val" id="det-oval" style="color:#185FA5">₹'+((it.recQty*it.price)/100000).toFixed(2)+'L</span></div>'+
+      '<div class="da-row"><span class="da-key">Est. arrival</span><span class="da-val">'+it.arrival+'</span></div>'+
+      '<div class="da-row"><span class="da-key">Revenue recovery</span><span class="da-val" id="det-rval" style="color:#3B6D11">₹'+((it.recQty*it.price*1.4)/100000).toFixed(2)+'L</span></div>';
+  } else if(it.type==='redis'){
+    actionFields='<div class="da-row"><span class="da-key">Units to transfer</span><span class="da-val"><input id="det-qty" class="m-inp" type="number" value="'+it.recQty+'" min="1" oninput="updCalc()"></span></div>'+
+      '<div class="da-row"><span class="da-key">Destination store</span><span class="da-val" style="color:#185FA5">DL-Connaught</span></div>'+
+      '<div class="da-row"><span class="da-key">Holding cost saved</span><span class="da-val" id="det-oval" style="color:#3B6D11">₹'+Math.round(it.recQty*600).toLocaleString('en-IN')+'</span></div>';
+  } else if(it.type==='markdown'){
+    actionFields='<div class="da-row"><span class="da-key">Units</span><span class="da-val"><input id="det-qty" class="m-inp" type="number" value="'+it.recQty+'" min="1" oninput="updCalc()"></span></div>'+
+      '<div class="da-row"><span class="da-key">Discount %</span><span class="da-val"><input id="det-disc" class="m-inp" type="number" value="'+it.disc+'" min="5" max="70" oninput="updCalc()">%</span></div>'+
+      '<div class="da-row"><span class="da-key">Discounted price</span><span class="da-val" id="det-dprice">₹'+Math.round(it.price*(1-it.disc/100)).toLocaleString('en-IN')+'</span></div>'+
+      '<div class="da-row"><span class="da-key">Est. clearance</span><span class="da-val" id="det-oval">18–22 days</span></div>'+
+      '<div class="da-row"><span class="da-key">Expected recovery</span><span class="da-val" id="det-rval" style="color:#3B6D11">₹'+((it.recQty*it.price*(1-it.disc/100))/100000).toFixed(2)+'L</span></div>';
+  }
+
+  var confirmBtn=it.action?'<button class="confirm-btn '+it.cbCls+'" onclick="confirmAction()">'+it.action+'</button>':'';
+
+  document.getElementById('d-body').innerHTML=
+    '<div class="type-bar"><div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">'+it.name+'</div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">'+it.store+(it.city?' · '+it.city:'')+(it.crit?' · Crit: <b style="color:'+typeColor+'">'+it.crit+'</b>':'')+'</div></div><span style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:8px;background:'+typeBg+';color:'+typeColor+'">'+typeLabel+'</span></div>'+
+    '<div class="det-grid">'+
+    '<div class="det-metric"><div class="dm-label">Quantity</div><div class="dm-val" style="color:'+qtyColor+'">'+it.qty+'</div><div class="dm-sub">units in store</div></div>'+
+    '<div class="det-metric"><div class="dm-label">DSI</div><div class="dm-val" style="color:'+dsiColor+'">'+it.dsi+'</div><div class="dm-sub">days of stock</div></div>'+
+    '<div class="det-metric"><div class="dm-label">Sell-through</div><div class="dm-val">'+it.str+'</div><div class="dm-sub">rate</div></div>'+
+    '<div class="det-metric"><div class="dm-label">Proc. TAT</div><div class="dm-val">'+it.tat+'</div><div class="dm-sub">arrival time</div></div>'+
+    '</div>'+
+    '<div class="rev-card '+it.revCls+'"><div style="font-size:11px;font-weight:500;color:'+it.revColor+';margin-bottom:4px">Revenue impact</div><div style="font-size:22px;font-weight:500;color:'+it.revColor+'">'+it.rev+'</div><div style="font-size:11px;color:'+it.revColor+';opacity:0.85;margin-top:5px;line-height:1.5">'+it.recStr+'</div></div>'+
+    (actionFields?'<div class="action-area"><div class="da-label">Action details</div>'+actionFields+'</div>':'')+
+    confirmBtn+
+    '<div style="height:8px"></div>';
+
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('ms-detail').classList.add('active');
+}
+
+function updCalc(){
+  var it=currentItem; if(!it)return;
+  var q=parseInt(document.getElementById('det-qty')?document.getElementById('det-qty').value:0)||0;
+  if(it.type==='oos'||it.type==='low'){
+    var p=it.price;
+    if(document.getElementById('det-oval'))document.getElementById('det-oval').textContent='₹'+((q*p)/100000).toFixed(2)+'L';
+    if(document.getElementById('det-rval'))document.getElementById('det-rval').textContent='₹'+((q*p*1.4)/100000).toFixed(2)+'L';
+  } else if(it.type==='redis'){
+    if(document.getElementById('det-oval'))document.getElementById('det-oval').textContent='₹'+Math.round(q*600).toLocaleString('en-IN');
+  } else if(it.type==='markdown'){
+    var d=parseInt(document.getElementById('det-disc')?document.getElementById('det-disc').value:20)||20;
+    var p=it.price;
+    if(document.getElementById('det-dprice'))document.getElementById('det-dprice').textContent='₹'+Math.round(p*(1-d/100)).toLocaleString('en-IN');
+    var days=d<=15?'25–30':d<=25?'18–22':d<=40?'10–14':'5–8';
+    if(document.getElementById('det-oval'))document.getElementById('det-oval').textContent=days+' days';
+    if(document.getElementById('det-rval'))document.getElementById('det-rval').textContent='₹'+((q*p*(1-d/100))/100000).toFixed(2)+'L';
+  }
+}
+
+function confirmAction(){
+  var it=currentItem;
+  var msgs={oos:'Reorder placed for '+it.sku,low:'Restock initiated for '+it.sku,redis:'Transfer approved for '+it.sku,markdown:'Markdown applied for '+it.sku};
+  document.getElementById('d-body').innerHTML=
+    '<div class="success-wrap">'+
+    '<div class="success-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#3B6D11" stroke-width="2.5"><polyline points="5,14 11,20 23,8"/></svg></div>'+
+    '<div style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Done!</div>'+
+    '<div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">'+msgs[it.type]+'</div>'+
+    '<div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:24px">Action recorded and sent to the relevant team. You\'ll be notified on completion.</div>'+
+    '<button style="padding:12px 28px;background:#185FA5;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer" onclick="goHome()">Back to home</button>'+
+    '</div>';
+}
+
+function goHome(){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('ms-home').classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById('tab-home').classList.add('active');
+}
+
+function togSet(row){
+  var t=row.querySelector('.toggle');
+  t.classList.toggle('on');t.classList.toggle('off');
+  showToast('Setting updated');
+}
+
+function showToast(msg){
+  var t=document.getElementById('mtoast');
+  t.textContent=msg;t.style.opacity='1';
+  setTimeout(function(){t.style.opacity='0';},2200);
+}
+
+renderSearch(ITEMS);
+</script>
